@@ -1,9 +1,7 @@
 "use server";
 
-import { initAuth } from "@/lib/auth";
 import Post from "@/lib/PostModel";
 import dbConnect from "@/lib/mongoose";
-import { headers } from "next/headers";
 
 export interface PostType {
   id: string;
@@ -13,13 +11,6 @@ export interface PostType {
 }
 
 export async function postBlog(post: PostType) {
-  const auth = await initAuth();
-  const session = await auth.api.getSession({ headers: await headers() });
-
-  if (!session || session.user.email !== "demetmscratch@gmail.com") {
-    throw new Error("You are not authorized to create blog posts.");
-  }
-
   if (
     !post ||
     typeof post.id !== "string" ||
