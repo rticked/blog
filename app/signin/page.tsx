@@ -4,15 +4,15 @@ import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
-interface UserType {
+type User = {
   email: string;
   name: string;
   password: string;
   signUp: boolean;
-}
+};
 
 function Page() {
-  const [user, setUser] = useState<UserType>({
+  const [user, setUser] = useState<User>({
     email: "",
     name: "",
     password: "",
@@ -20,13 +20,13 @@ function Page() {
   });
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   async function handleSignIn(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     setError(null);
-    setIsSubmitting(true);
+    setLoading(true);
 
     try {
       const result = user.signUp
@@ -55,7 +55,7 @@ function Page() {
           : "Something went wrong. Please try again.",
       );
     } finally {
-      setIsSubmitting(false);
+      setLoading(false);
     }
   }
 
@@ -100,8 +100,8 @@ function Page() {
         />
         Sign up
       </label>
-      <button className="rounded-full bg-white px-5 py-3 font-bold text-black disabled:opacity-50" type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Submitting..." : "Submit"}
+      <button className="rounded-full bg-white px-5 py-3 font-bold text-black disabled:opacity-50" type="submit" disabled={loading}>
+        {loading ? "Submitting..." : "Submit"}
       </button>
     </form>
     </main>

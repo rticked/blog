@@ -11,8 +11,8 @@ function PostForm({
 }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [newPost, setNewPost] = useState<PostType>({
+  const [loading, setLoading] = useState(false);
+  const [post, setPost] = useState<PostType>({
     id: crypto.randomUUID(),
     date: new Date(),
     title: "",
@@ -22,19 +22,15 @@ function PostForm({
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
-    setIsSubmitting(true);
+    setLoading(true);
 
     try {
-      await postBlog(newPost);
-      router.push("/blogs/" + encodeURIComponent(newPost.id));
-    } catch (cause) {
-      setError(
-        cause instanceof Error
-          ? cause.message
-          : "Unable to save the post. Please try again.",
-      );
+      await postBlog(post);
+      router.push(`/blogs/${post.id}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "The post could not be saved.");
     } finally {
-      setIsSubmitting(false);
+      setLoading(false);
     }
   }
 
@@ -46,10 +42,10 @@ function PostForm({
         placeholder="Title"
         required
         maxLength={200}
-        value={newPost.title}
-        onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
+        value={post.title}
+        onChange={(e) => setPost({ ...post, title: e.target.value })}
       />
-      {newPost.content.map((paragraph, index) => (
+      {post.content.map((paragraph, index) => (
         <textarea
           key={index}
           className="mb-4 min-h-36 w-full resize-y rounded-xl border border-white/10 bg-black/40 px-4 py-3 outline-none transition focus:border-white/40"
@@ -57,9 +53,9 @@ function PostForm({
           required
           value={paragraph}
           onChange={(e) => {
-            const content = [...newPost.content];
+            const content = [...post.content];
             content[index] = e.target.value;
-            setNewPost({ ...newPost, content });
+            setPost({ ...post, content });
           }}
         />
       ))}
@@ -68,13 +64,13 @@ function PostForm({
         className="mr-3 rounded-full border border-white/15 px-5 py-3 font-bold"
         type="button"
         onClick={() =>
-          setNewPost({ ...newPost, content: [...newPost.content, ""] })
+          setPost({ ...post, content: [...post.content, ""] })
         }
       >
         Add paragraph
       </button>
-      <button className="rounded-full bg-white px-5 py-3 font-bold text-black disabled:opacity-50" type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Posting..." : "Post"}
+      <button className="rounded-full bg-white px-5 py-3 font-bold text-black disabled:opacity-50" type="submit" disabled={loading}>
+        {loading ? "Posting..." : "Post"}
       </button>
     </form>
   );

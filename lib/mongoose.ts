@@ -1,4 +1,4 @@
-import mongoose, { Mongoose } from "mongoose";
+import mongoose, { type Mongoose } from "mongoose";
 
 declare global {
   var mongoose:
@@ -21,13 +21,7 @@ async function dbConnect() {
   if (cached!.conn) return cached!.conn;
 
   if (!cached!.promise) {
-    const opts = {
-      bufferCommands: false,
-    };
-
-    cached!.promise = mongoose.connect(MONGO_URI, opts).then((mongoose) => {
-      return mongoose;
-    });
+    cached!.promise = mongoose.connect(MONGO_URI, { bufferCommands: false });
   }
 
   try {

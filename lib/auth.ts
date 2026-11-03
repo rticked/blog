@@ -8,6 +8,11 @@ export async function initAuth() {
   const instance = betterAuth({
     database: mongodbAdapter(client.db()),
     emailAndPassword: { enabled: true },
+    trustedOrigins: [
+      "http://localhost:3000",
+      "https://blog-rticked.vercel.app",
+      "https://blog-alpha-nine-57.vercel.app",
+    ],
   });
 
   return instance;

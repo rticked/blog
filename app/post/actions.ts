@@ -2,45 +2,45 @@
 
 import Post from "@/lib/PostModel";
 import dbConnect from "@/lib/mongoose";
+import { headers } from "next/headers";
+import { initAuth } from "@/lib/auth";
 
-export interface PostType {
+export type PostType = {
   id: string;
   date: Date;
   title: string;
   content: string[];
-}
+};
 
 export async function postBlog(post: PostType) {
-  if (
-    !post ||
-    typeof post.id !== "string" ||
-    !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-      post.id,
-    ) ||
-    !(post.date instanceof Date) ||
-    Number.isNaN(post.date.getTime()) ||
-    typeof post.title !== "string" ||
-    !post.title.trim() ||
-    post.title.trim().length > 200 ||
-    !Array.isArray(post.content) ||
-    post.content.length === 0 ||
-    post.content.some(
-      (paragraph) => typeof paragraph !== "string" || !paragraph.trim(),
-    )
-  ) {
-    throw new Error("Please provide a valid title and at least one paragraph.");
+  const auth = await initAuth();
+  const thing = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!thing?.user) {
+    throw new Error("You need to sign in before writing a post.");
   }
 
-  try {
-    await dbConnect();
-    await Post.create({
-      id: post.id,
-      date: post.date,
-      title: post.title.trim(),
-      content: post.content.map((paragraph) => paragraph.trim()),
-    });
-  } catch (error) {
-    console.error("Failed to save blog post:", error);
-    throw new Error("Unable to save the post. Please try again.");
+  if (!post.title.trim()) {
+    throw new Error("Please add a title.");
   }
+
+  if (post.content.length === 0) {
+    throw new Error("Please add at least one paragraph.");
+  }
+
+  for (const paragraph of post.content) {
+    if (!paragraph.trim()) {
+      throw new Error("Please fill in every paragraph.");
+    }
+  }
+
+  await dbConnect();
+  await Post.create({
+    id: post.id,
+    date: post.date,
+    title: post.title.trim(),
+    content: post.content.map((paragraph) => paragraph.trim()),
+  });
 }

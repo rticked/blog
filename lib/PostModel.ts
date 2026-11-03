@@ -1,6 +1,6 @@
 import { Schema, model, models } from "mongoose";
 
-const PostSchema = new Schema(
+const postSchema = new Schema(
   {
     id: {
       type: String,
@@ -22,6 +22,6 @@ const PostSchema = new Schema(
   { timestamps: true },
 );
 
-const Post = models.Post || model("Post", PostSchema);
+const Post = models.Post || model("Post", postSchema);
 
 export default Post;
